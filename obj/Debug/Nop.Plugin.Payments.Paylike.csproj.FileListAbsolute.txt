@@ -1,0 +1,17 @@
+E:\TFS\NopCommerce\3.70\Main\Nop.Plugin.Payments.Paylike\bin\Debug\web.config
+E:\TFS\NopCommerce\3.70\Main\Nop.Plugin.Payments.Paylike\bin\Debug\Description.txt
+E:\TFS\NopCommerce\3.70\Main\Nop.Plugin.Payments.Paylike\bin\Debug\logo.jpg
+E:\TFS\NopCommerce\3.70\Main\Nop.Plugin.Payments.Paylike\bin\Debug\Nop.Plugin.Payments.Paylike.dll.config
+E:\TFS\NopCommerce\3.70\Main\Nop.Plugin.Payments.Paylike\bin\Debug\Nop.Plugin.Payments.Paylike.dll
+E:\TFS\NopCommerce\3.70\Main\Nop.Plugin.Payments.Paylike\bin\Debug\Nop.Plugin.Payments.Paylike.pdb
+E:\TFS\NopCommerce\3.70\Main\Presentation\Nop.Web\Plugins\Payments.Paylike\web.config
+E:\TFS\NopCommerce\3.70\Main\Presentation\Nop.Web\Plugins\Payments.Paylike\Views\Paylike\PaymentInfo.cshtml
+E:\TFS\NopCommerce\3.70\Main\Presentation\Nop.Web\Plugins\Payments.Paylike\Views\Paylike\Configure.cshtml
+E:\TFS\NopCommerce\3.70\Main\Presentation\Nop.Web\Plugins\Payments.Paylike\Description.txt
+E:\TFS\NopCommerce\3.70\Main\Presentation\Nop.Web\Plugins\Payments.Paylike\logo.jpg
+E:\TFS\NopCommerce\3.70\Main\Presentation\Nop.Web\Plugins\Payments.Paylike\Nop.Plugin.Payments.Paylike.dll.config
+E:\TFS\NopCommerce\3.70\Main\Presentation\Nop.Web\Plugins\Payments.Paylike\Nop.Plugin.Payments.Paylike.dll
+E:\TFS\NopCommerce\3.70\Main\Presentation\Nop.Web\Plugins\Payments.Paylike\Nop.Plugin.Payments.Paylike.pdb
+E:\TFS\NopCommerce\3.70\Main\Nop.Plugin.Payments.Paylike\obj\Debug\Nop.Plugin.Payments.Paylike.csprojResolveAssemblyReference.cache
+E:\TFS\NopCommerce\3.70\Main\Nop.Plugin.Payments.Paylike\obj\Debug\Nop.Plugin.Payments.Paylike.dll
+E:\TFS\NopCommerce\3.70\Main\Nop.Plugin.Payments.Paylike\obj\Debug\Nop.Plugin.Payments.Paylike.pdb

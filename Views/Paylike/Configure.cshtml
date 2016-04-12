@@ -1,0 +1,67 @@
+﻿@{
+    Layout = "";
+}
+@model ConfigurationModel
+@using Nop.Plugin.Payments.Paylike.Models;
+@using Nop.Web.Framework;
+@Html.Action("StoreScopeConfiguration", "Setting", new { area = "Admin" })
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    
+    <table class="adminContent">
+
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.MerchantId, false) *:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.MerchantId)
+                @Html.ValidationMessageFor(model => model.MerchantId)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.AppKey, false) *:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.AppKey)
+                @Html.ValidationMessageFor(model => model.AppKey)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.PublicKey, false) *:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.PublicKey)
+                @Html.ValidationMessageFor(model => model.PublicKey)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.CaptureDescriptor, false) *:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.CaptureDescriptor)
+                @Html.ValidationMessageFor(model => model.CaptureDescriptor)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.RefundDescriptor, false) *:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.RefundDescriptor)
+                @Html.ValidationMessageFor(model => model.RefundDescriptor)
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" name="save" class="k-button" title="Save the configuration" value="Save" />
+            </td>
+        </tr>
+    </table>
+    
+}
