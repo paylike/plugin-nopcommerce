@@ -12,7 +12,10 @@ using Nop.Services.Payments;
 using Nop.Services.Stores;
 using Nop.Web.Framework.Controllers;
 using Paylike.NET;
+using Paylike.NET.Entities;
+using Paylike.NET.RequestModels.Merchants;
 using Paylike.NET.RequestModels.Transactions;
+using Paylike.NET.ResponseModels.Apps;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,7 +74,6 @@ namespace Nop.Plugin.Payments.Paylike.Controllers
 
             model.PublicKey = paylikeSettings.PublicKey;
             model.AppKey = paylikeSettings.AppKey;
-            model.MerchantId = paylikeSettings.MerchantId;
             model.CaptureDescriptor = paylikeSettings.CaptureDescriptor;
             model.RefundDescriptor = paylikeSettings.RefundDescriptor;
 
@@ -92,16 +94,16 @@ namespace Nop.Plugin.Payments.Paylike.Controllers
 
             paylikeSettings.PublicKey = model.PublicKey;
             paylikeSettings.AppKey = model.AppKey;
-            paylikeSettings.MerchantId = model.MerchantId;
             paylikeSettings.CaptureDescriptor = model.CaptureDescriptor;
             paylikeSettings.RefundDescriptor = model.RefundDescriptor;
+            paylikeSettings.MerchantId = GetMerchantId(paylikeSettings.AppKey, paylikeSettings.PublicKey);
 
             ////save settings
             _settingService.SaveSetting(paylikeSettings, x => x.PublicKey, storeScope);
             _settingService.SaveSetting(paylikeSettings, x => x.AppKey, storeScope);
-            _settingService.SaveSetting(paylikeSettings, x => x.MerchantId, storeScope);
             _settingService.SaveSetting(paylikeSettings, x => x.CaptureDescriptor, storeScope);
             _settingService.SaveSetting(paylikeSettings, x => x.RefundDescriptor, storeScope);
+            _settingService.SaveSetting(paylikeSettings, x => x.MerchantId, storeScope);
 
             //now clear settings cache
             _settingService.ClearCache();
@@ -113,33 +115,70 @@ namespace Nop.Plugin.Payments.Paylike.Controllers
         [ChildActionOnly]
         public ActionResult PaymentInfo()
         {
-            return View("~/Plugins/Payments.Paylike/Views/Paylike/PaymentInfo.cshtml");
+            var model = new PaymentInfoModel();
+
+            //years
+            for (int i = 0; i < 15; i++)
+            {
+                string year = Convert.ToString(DateTime.Now.Year + i);
+                model.ExpireYears.Add(new SelectListItem
+                {
+                    Text = year,
+                    Value = year,
+                });
+            }
+
+            //months
+            for (int i = 1; i <= 12; i++)
+            {
+                string text = (i < 10) ? "0" + i : i.ToString();
+                model.ExpireMonths.Add(new SelectListItem
+                {
+                    Text = text,
+                    Value = text,
+                });
+            }
+
+            ViewBag.PublicKey = _paylikePaymentSettings.PublicKey;
+            return View("~/Plugins/Payments.Paylike/Views/Paylike/PaymentInfo.cshtml", model);
         }
 
         public override IList<string> ValidatePaymentForm(FormCollection form)
         {
             var warnings = new List<string>();
+            string paymentToken = form["paymenttoken"];
+            if (string.IsNullOrEmpty(paymentToken))
+                warnings.Add(_localizationService.GetLocaleStringResourceByName("Plugins.Payments.Paylike.Errors.PaymentTokenRequired")?.ResourceValue);
             return warnings;
         }
 
         public override ProcessPaymentRequest GetPaymentInfo(FormCollection form)
         {
             ProcessPaymentRequest paymentInfo = new ProcessPaymentRequest();
+            paymentInfo.CustomValues["paymenttoken"] = form["paymenttoken"];
             return paymentInfo;
         }
 
-        public ActionResult FinishOrder(string transactionId)
+        private string GetMerchantId(string appKey, string publicKey)
         {
-            var paylikeTransactionService = new PaylikeTransactionService(_paylikePaymentSettings.AppKey);
-            var response = paylikeTransactionService.GetTransaction(new GetTransactionRequest() { TransactionId = transactionId });
+            try
+            {
+                PaylikeAppService appService = new PaylikeAppService(appKey);
+                Identity app = appService.GetCurrentApp().Content.Identity;
+                List<Merchant> merchants = new PaylikeMerchantService(appKey).GetMerchants(new GetMerchantsRequest()
+                {
+                    AppId = app.Id,
+                    Limit = int.MaxValue
+                }).Content;
 
-            int orderId = int.Parse(response.Content.Custom["reference"]);
-            Order order = _orderService.GetOrderById(orderId);
+                var configuredMerchant = merchants.FirstOrDefault(m => m.Key == publicKey);
 
-            order.AuthorizationTransactionId = transactionId;
-            _orderProcessingService.MarkAsAuthorized(order);
-
-            return RedirectToRoute("CheckoutCompleted", new { orderId = orderId });
+                return configuredMerchant.Id;
+            }
+            catch(Exception ex)
+            {
+                return string.Empty;
+            }
         }
     }
 }

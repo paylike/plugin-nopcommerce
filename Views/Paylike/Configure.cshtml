@@ -8,19 +8,7 @@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-
-    
-    <table class="adminContent">
-
-        <tr>
-            <td class="adminTitle">
-                @Html.NopLabelFor(model => model.MerchantId, false) *:
-            </td>
-            <td class="adminData">
-                @Html.EditorFor(model => model.MerchantId)
-                @Html.ValidationMessageFor(model => model.MerchantId)
-            </td>
-        </tr>
+    <table class="adminContent">        
         <tr>
             <td class="adminTitle">
                 @Html.NopLabelFor(model => model.AppKey, false) *:

@@ -87,7 +87,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PaylikePaymentSettings.cs" />
     <Compile Include="PaylikeProcessor.cs" />
-    <Compile Include="RouteProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

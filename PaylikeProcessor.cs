@@ -18,6 +18,9 @@ using Paylike.NET;
 using Paylike.NET.RequestModels.Transactions;
 using System.Text;
 using System.Web;
+using Paylike.NET.ResponseModels.Apps;
+using Paylike.NET.Entities;
+using Paylike.NET.RequestModels.Merchants;
 
 namespace Nop.Plugin.Payments.Paylike
 {
@@ -61,26 +64,40 @@ namespace Nop.Plugin.Payments.Paylike
         public ProcessPaymentResult ProcessPayment(ProcessPaymentRequest processPaymentRequest)
         {
             var result = new ProcessPaymentResult();
+
+            var token = processPaymentRequest.CustomValues["paymenttoken"].ToString();
+            var primaryStoreCurrency = _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
+            int amount = (int)(Decimal.Round(processPaymentRequest.OrderTotal, 2) * 100);
+
+            CreateTransactionRequest createTransactionRequest = new CreateTransactionRequest()
+            {
+                Amount = amount,
+                Currency = primaryStoreCurrency.CurrencyCode,
+                CardId = token,
+                MerchantId = _paylikePaymentSettings.MerchantId,
+                Descriptor = string.Empty,
+                Custom = new Dictionary<string, string>() { }
+            };
+
+            createTransactionRequest.Custom.Add("NopOrderGuid", processPaymentRequest.OrderGuid.ToString());
+
+            var createTransactionResponse = _paylikeTransactionService.CreateTransaction(createTransactionRequest);
+            if (createTransactionResponse.IsError)
+            {
+                result.AddError(createTransactionResponse.ErrorMessage);
+                result.AddError(createTransactionResponse.ErrorContent);
+            }
+            else
+            {
+                result.AuthorizationTransactionId = createTransactionResponse.Content.Id;
+                result.NewPaymentStatus = PaymentStatus.Authorized;
+            }
+
             return result;
         }
 
-
         public void PostProcessPayment(PostProcessPaymentRequest postProcessPaymentRequest)
         {
-            string paylikeHost = @"https://pos.paylike.io/?";
-            var primaryStoreCurrency = _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
-            int amount = (int)(Decimal.Round(postProcessPaymentRequest.Order.OrderTotal, 2) * 100);
-            string returnUrl = _webHelper.GetStoreLocation(false) + "Plugins/PaymentPaylike/FinishOrder";
-
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(paylikeHost);
-            stringBuilder.Append(string.Format("key={0}", _paylikePaymentSettings.PublicKey));
-            stringBuilder.Append(string.Format("&currency={0}", primaryStoreCurrency.CurrencyCode));
-            stringBuilder.Append(string.Format("&amount={0}", amount));
-            stringBuilder.Append(string.Format("&reference={0}", postProcessPaymentRequest.Order.Id));
-            stringBuilder.Append(string.Format("&redirect={0}", returnUrl));
-
-            _httpContext.Response.Redirect(stringBuilder.ToString());
         }
 
         public bool HidePaymentMethod(IList<Core.Domain.Orders.ShoppingCartItem> cart)
@@ -231,6 +248,7 @@ namespace Nop.Plugin.Payments.Paylike
             this.AddOrUpdatePluginLocaleResource("Plugins.Payments.Paylike.Fields.CaptureDescriptor", "Capture Descriptor");
             this.AddOrUpdatePluginLocaleResource("Plugins.Payments.Paylike.Fields.RefundDescriptor", "Refund Descriptor");
             this.AddOrUpdatePluginLocaleResource("Plugins.Payments.Paylike.Fields.RedirectionTip", "You will be redirected to the Paylike website to finish your order.");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Payments.Paylike.Errors.PaymentTokenRequired", "A payment token is required in order to continue the checkout process.");
             base.Install();
         }
 
@@ -246,6 +264,7 @@ namespace Nop.Plugin.Payments.Paylike
             this.DeletePluginLocaleResource("Plugins.Payments.Paylike.Fields.CaptureDescriptor");
             this.DeletePluginLocaleResource("Plugins.Payments.Paylike.Fields.RefundDescriptor");
             this.DeletePluginLocaleResource("Plugins.Payments.Paylike.Fields.RedirectionTip");
+            this.DeletePluginLocaleResource("Plugins.Payments.Paylike.Errors.PaymentTokenRequired");
             base.Uninstall();
         }
     }

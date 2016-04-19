@@ -6,10 +6,6 @@ namespace Nop.Plugin.Payments.Paylike.Models
     public class ConfigurationModel
     {
         [Required]
-        [NopResourceDisplayName("Plugins.Payments.Paylike.Fields.MerchantId")]
-        public string MerchantId { get; set; }
-
-        [Required]
         [NopResourceDisplayName("Plugins.Payments.Paylike.Fields.AppKey")]
         public string AppKey { get; set; }
 
